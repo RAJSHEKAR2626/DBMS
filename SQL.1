@@ -1,0 +1,306 @@
+-- Create the customer table
+CREATE TABLE customer (
+    cust_id INT PRIMARY KEY,            -- Unique identifier for each customer
+    cust_name VARCHAR(255) NOT NULL     -- Name of the customer
+);
+
+-- Create the item table
+CREATE TABLE item (
+    item_id INT PRIMARY KEY,            -- Unique identifier for each item
+    item_name VARCHAR(255) NOT NULL,    -- Name of the item
+    price INT NOT NULL                  -- Price of the item
+);
+
+-- Create the sale table
+CREATE TABLE sale (
+    bill_no INT PRIMARY KEY,            -- Unique identifier for each sale transaction
+    bill_date DATE NOT NULL,            -- Date of the sale
+    cust_id INT NOT NULL,               -- Identifier of the customer who made the purchase
+    item_id INT NOT NULL,               -- Identifier of the purchased item
+    qty_sold INT NOT NULL,              -- Quantity of the item sold
+
+    -- Foreign key constraints
+    FOREIGN KEY (cust_id) REFERENCES customer(cust_id) ON DELETE CASCADE,
+    FOREIGN KEY (item_id) REFERENCES item(item_id) ON DELETE CASCADE
+);
+
+-- Insert records into the customer table
+INSERT INTO customer (cust_id, cust_name) VALUES
+(1, 'John Doe'),
+(2, 'Jane Smith'),
+(3, 'Alice Johnson'),
+(4, 'Bob Brown'),
+(5, 'Charlie Davis');
+
+-- Insert records into the item table
+INSERT INTO item (item_id, item_name, price) VALUES
+(1, 'Laptop', 1000),
+(2, 'Smartphone', 800),
+(3, 'Tablet', 600),
+(4, 'Headphones', 200),
+(5, 'Camera', 100);
+
+-- Insert records into the sale table
+INSERT INTO sale (bill_no, bill_date, cust_id, item_id, qty_sold) VALUES
+(1, '2023-07-01', 1, 1, 1),
+(2, '2023-07-01', 2, 2, 2),
+(3, '2023-07-02', 3, 3, 1),
+(4, '2023-07-03', 4, 4, 3),
+(5, '2023-07-10', 5, 5, 1);
+
+--select * from customer;
+--select * from item;
+--select * from sale;
+
+--3 List all the bill numbers for the date 2023-07-01 along with the customer names and item IDs. Ensure the column names are bill_no, cust_name, and item_id.
+SELECT 
+    s.bill_no AS bill_no,
+    (SELECT c.cust_name 
+     FROM customer c 
+     WHERE c.cust_id = s.cust_id) AS cust_name,
+    s.item_id AS item_id
+FROM 
+    sale s
+WHERE 
+    s.bill_date = '2023-07-01';
+
+
+-- 4. List all the total bill details including bill_no, bill_date, cust_name, item_name, price, qty_sold, and the final amount paid for each item in each transaction (price * qty_sold).
+
+SELECT
+    s.bill_no AS bill_no,
+    s.bill_date AS bill_date,
+    (SELECT c.cust_name 
+     FROM customer c 
+     WHERE c.cust_id = s.cust_id) AS cust_name,
+    (SELECT i.item_name 
+     FROM item i 
+     WHERE i.item_id = s.item_id) AS item_name,
+    (SELECT i.price 
+     FROM item i 
+     WHERE i.item_id = s.item_id) AS price,
+    s.qty_sold AS qty_sold,
+    (SELECT i.price 
+     FROM item i 
+     WHERE i.item_id = s.item_id) * s.qty_sold AS amount
+FROM 
+    sale s;
+
+
+-- 5. List the details (names) of the customers who have bought a product that has a price greater than 200. Ensure the column name is cust_name.
+/*
+SELECT DISTINCT
+    (SELECT c.cust_name 
+     FROM customer c 
+     WHERE c.cust_id = s.cust_id) AS cust_name
+FROM 
+    sale s
+WHERE 
+    s.item_id IN (SELECT i.item_id 
+                  FROM item i 
+                  WHERE i.price > 200);
+*/
+
+SELECT DISTINCT customer.cust_name
+FROM sale
+JOIN customer ON sale.cust_id = customer.cust_id
+JOIN item ON sale.item_id = item.item_id
+WHERE item.price > 200;
+
+
+-- 6. Display the total number of products (represented by quantity sold) purchased by each customer, aggregating the quantities for all transactions made by each customer. Ensure the column names are cust_name and total_products_purchased.
+SELECT customer.cust_name, SUM(sale.qty_sold) AS total_products_purchased
+FROM sale
+JOIN customer ON sale.cust_id = customer.cust_id
+GROUP BY customer.cust_name;
+
+-- 7. Give a list of item names bought by the customer with cust_id as 5. Ensure the column name is item_name.
+SELECT DISTINCT
+    (SELECT i.item_name
+     FROM item i
+     WHERE i.item_id = s.item_id) AS item_name
+FROM 
+    sale s
+WHERE 
+    s.cust_id = 5;
+-- Create the customer table
+CREATE TABLE customer (
+    cust_id INT PRIMARY KEY,            -- Unique identifier for each customer
+    cust_name VARCHAR(255) NOT NULL     -- Name of the customer
+);
+
+-- Create the item table
+CREATE TABLE item (
+    item_id INT PRIMARY KEY,            -- Unique identifier for each item
+    item_name VARCHAR(255) NOT NULL,    -- Name of the item
+    price INT NOT NULL                  -- Price of the item
+);
+
+-- Create the sale table
+CREATE TABLE sale (
+    bill_no INT PRIMARY KEY,            -- Unique identifier for each sale transaction
+    bill_date DATE NOT NULL,            -- Date of the sale
+    cust_id INT NOT NULL,               -- Identifier of the customer who made the purchase
+    item_id INT NOT NULL,               -- Identifier of the purchased item
+    qty_sold INT NOT NULL,              -- Quantity of the item sold
+
+    -- Foreign key constraints
+    FOREIGN KEY (cust_id) REFERENCES customer(cust_id) ON DELETE CASCADE,
+    FOREIGN KEY (item_id) REFERENCES item(item_id) ON DELETE CASCADE
+);
+
+-- Insert records into the customer table
+INSERT INTO customer (cust_id, cust_name) VALUES
+(1, 'John Doe'),
+(2, 'Jane Smith'),
+(3, 'Alice Johnson'),
+(4, 'Bob Brown'),
+(5, 'Charlie Davis');
+
+-- Insert records into the item table
+INSERT INTO item (item_id, item_name, price) VALUES
+(1, 'Laptop', 1000),
+(2, 'Smartphone', 800),
+(3, 'Tablet', 600),
+(4, 'Headphones', 200),
+(5, 'Camera', 100);
+
+-- Insert records into the sale table
+INSERT INTO sale (bill_no, bill_date, cust_id, item_id, qty_sold) VALUES
+(1, '2023-07-01', 1, 1, 1),
+(2, '2023-07-01', 2, 2, 2),
+(3, '2023-07-02', 3, 3, 1),
+(4, '2023-07-03', 4, 4, 3),
+(5, '2023-07-10', 5, 5, 1);
+
+--select * from customer;
+--select * from item;
+--select * from sale;
+
+--3 List all the bill numbers for the date 2023-07-01 along with the customer names and item IDs. Ensure the column names are bill_no, cust_name, and item_id.
+SELECT 
+    s.bill_no AS bill_no,
+    (SELECT c.cust_name 
+     FROM customer c 
+     WHERE c.cust_id = s.cust_id) AS cust_name,
+    s.item_id AS item_id
+FROM 
+    sale s
+WHERE 
+    s.bill_date = '2023-07-01';
+
+
+-- 4. List all the total bill details including bill_no, bill_date, cust_name, item_name, price, qty_sold, and the final amount paid for each item in each transaction (price * qty_sold).
+
+SELECT
+    s.bill_no AS bill_no,
+    s.bill_date AS bill_date,
+    (SELECT c.cust_name 
+     FROM customer c 
+     WHERE c.cust_id = s.cust_id) AS cust_name,
+    (SELECT i.item_name 
+     FROM item i 
+     WHERE i.item_id = s.item_id) AS item_name,
+    (SELECT i.price 
+     FROM item i 
+     WHERE i.item_id = s.item_id) AS price,
+    s.qty_sold AS qty_sold,
+    (SELECT i.price 
+     FROM item i 
+     WHERE i.item_id = s.item_id) * s.qty_sold AS amount
+FROM 
+    sale s;
+
+
+-- 5. List the details (names) of the customers who have bought a product that has a price greater than 200. Ensure the column name is cust_name.
+/*
+SELECT DISTINCT
+    (SELECT c.cust_name 
+     FROM customer c 
+     WHERE c.cust_id = s.cust_id) AS cust_name
+FROM 
+    sale s
+WHERE 
+    s.item_id IN (SELECT i.item_id 
+                  FROM item i 
+                  WHERE i.price > 200);
+*/
+
+SELECT DISTINCT customer.cust_name
+FROM sale
+JOIN customer ON sale.cust_id = customer.cust_id
+JOIN item ON sale.item_id = item.item_id
+WHERE item.price > 200;
+
+
+-- 6. Display the total number of products (represented by quantity sold) purchased by each customer, aggregating the quantities for all transactions made by each customer. Ensure the column names are cust_name and total_products_purchased.
+SELECT customer.cust_name, SUM(sale.qty_sold) AS total_products_purchased
+FROM sale
+JOIN customer ON sale.cust_id = customer.cust_id
+GROUP BY customer.cust_name;
+
+-- 7. Give a list of item names bought by the customer with cust_id as 5. Ensure the column name is item_name.
+SELECT DISTINCT
+    (SELECT i.item_name
+     FROM item i
+     WHERE i.item_id = s.item_id) AS item_name
+FROM 
+    sale s
+WHERE 
+    s.cust_id = 5;
+
+-- 8. List the item names that were sold on the date 2023-07-02. Ensure the column name is item_name.
+
+SELECT DISTINCT
+    i.item_name AS item_name
+FROM 
+    sale s
+JOIN 
+    item i ON s.item_id = i.item_id
+WHERE 
+    s.bill_date = '2023-07-02';
+
+-- 9. List the bill details including bill_no, bill_date, cust_id, item_id, price, qty_sold, and the amount for each sale transaction. 
+
+SELECT 
+    s.bill_no AS bill_no,
+    s.bill_date AS bill_date,
+    s.cust_id AS cust_id,
+    s.item_id AS item_id,
+    i.price AS price,
+    s.qty_sold AS qty_sold,
+    i.price * s.qty_sold AS amount
+FROM 
+    sale s
+JOIN 
+    item i ON s.item_id = i.item_id;
+
+-- 10. Create a view named bill_details_view that lists detailed bill information including bill_no, bill_date, cust_id, item_id, price, qty_sold, and the total amount as amount for each sale transaction. Ensure the column names are in this exact order.
+
+CREATE VIEW bill_details_view AS
+SELECT 
+    s.bill_no AS bill_no,
+    s.bill_date AS bill_date,
+    s.cust_id AS cust_id,
+    s.item_id AS item_id,
+    i.price AS price,
+    s.qty_sold AS qty_sold,
+    i.price * s.qty_sold AS amount
+FROM 
+    sale s
+JOIN 
+    item i ON s.item_id = i.item_id;
+
+-- 11. Create a view named daily_sales_view that lists daily sales (total sales amount) from a start date (2023-07-01) to an end date (2023-07-03), grouped by date. Ensure the column names are bill_date and total_sales.
+CREATE VIEW daily_sales_view AS
+SELECT 
+    s.bill_date AS bill_date,
+    SUM(i.price * s.qty_sold) AS total_sales
+FROM 
+    sale s
+JOIN 
+    item i ON s.item_id = i.item_id
+WHERE 
+    s.bill_date BETWEEN '2023-07-01' AND '2023-07-03'
+GROUP BY 
+    s.bill_date;
