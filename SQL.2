@@ -1,0 +1,101 @@
+CREATE TABLE student (
+    stud_no INT PRIMARY KEY,
+    stud_name VARCHAR(50)
+);
+
+CREATE TABLE membership (
+    mem_no INT PRIMARY KEY,
+    stud_no INT,
+    FOREIGN KEY (stud_no) REFERENCES student(stud_no)
+);
+
+CREATE TABLE book (
+    book_no INT PRIMARY KEY,
+    book_name VARCHAR(100),
+    author VARCHAR(50)
+);
+
+CREATE TABLE iss_rec (
+    iss_no INT PRIMARY KEY,
+    iss_date DATE,
+    mem_no INT,
+    book_no INT,
+    FOREIGN KEY (mem_no) REFERENCES membership(mem_no),
+    FOREIGN KEY (book_no) REFERENCES book(book_no)
+);
+-- Inserting data into student table
+INSERT INTO student (stud_no, stud_name) VALUES
+(1001, 'John Doe'),
+(1002, 'Jane Smith'),
+(1003, 'Michael Johnson'),
+(1004, 'Emily Brown'),
+(1005, 'David Lee');
+
+-- Inserting data into membership table
+INSERT INTO membership (mem_no, stud_no) VALUES
+(5001, 1001),
+(5002, 1002),
+(5003, 1003),
+(5004, 1004),
+(5005, 1005);
+
+-- Inserting data into book table
+INSERT INTO book (book_no, book_name, author) VALUES
+(101, 'The Great Gatsby', 'Scott Fitzgerald'),
+(102, 'Moby Dick', 'Herman Melville'),
+(103, 'Pride and Prejudice', 'Jane Austen'),
+(104, 'Jane Eyre', 'Charlotte Bronte'),
+(105, 'Animal Farm', 'George Orwell');
+
+-- Inserting data into iss_rec table
+INSERT INTO iss_rec (iss_no, iss_date, mem_no, book_no) VALUES
+(1, '2024-07-01', 5001, 101),
+(2, '2024-07-02', 5002, 102),
+(3, '2024-07-02', 5003, 103),
+(4, '2024-07-04', 5004, 104),
+(5, '2024-07-05', 5005, 105);
+
+SELECT stud_name, mem_no
+FROM student
+JOIN membership ON student.stud_no = membership.stud_no;
+SELECT iss_rec.iss_no, student.stud_name, book.book_name
+FROM iss_rec
+JOIN membership ON iss_rec.mem_no = membership.mem_no
+JOIN student ON membership.stud_no = student.stud_no
+JOIN book ON iss_rec.book_no = book.book_no
+WHERE iss_rec.iss_date = '2024-07-02';
+SELECT student.stud_no, student.stud_name
+FROM iss_rec
+JOIN membership ON iss_rec.mem_no = membership.mem_no
+JOIN student ON membership.stud_no = student.stud_no
+JOIN book ON iss_rec.book_no = book.book_no
+WHERE book.author = 'George Orwell';
+SELECT student.stud_no, student.stud_name, COUNT(iss_rec.iss_no) AS books_borrowed
+FROM student
+JOIN membership ON student.stud_no = membership.stud_no
+JOIN iss_rec ON membership.mem_no = iss_rec.mem_no
+GROUP BY student.stud_no, student.stud_name
+ORDER BY student.stud_no;
+SELECT book.book_name
+FROM iss_rec
+JOIN membership ON iss_rec.mem_no = membership.mem_no
+JOIN book ON iss_rec.book_no = book.book_no
+JOIN student ON membership.stud_no = student.stud_no
+WHERE student.stud_no = 1005;
+SELECT book.book_no, book.book_name, book.author
+FROM iss_rec
+JOIN book ON iss_rec.book_no = book.book_no
+WHERE iss_rec.iss_date = '2024-07-04';
+CREATE VIEW iss_rec_view AS
+SELECT iss_rec.iss_no, iss_rec.iss_date, student.stud_name, book.book_name
+FROM iss_rec
+JOIN membership ON iss_rec.mem_no = membership.mem_no
+JOIN student ON membership.stud_no = student.stud_no
+JOIN book ON iss_rec.book_no = book.book_no;
+CREATE VIEW daily_issues_view AS
+SELECT iss_rec.iss_no, iss_rec.iss_date, student.stud_name, book.book_name
+FROM iss_rec
+JOIN membership ON iss_rec.mem_no = membership.mem_no
+JOIN student ON membership.stud_no = student.stud_no
+JOIN book ON iss_rec.book_no = book.book_no
+WHERE iss_rec.iss_date BETWEEN '2024-07-02' AND '2024-07-04';
