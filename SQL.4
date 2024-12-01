@@ -1,26 +1,20 @@
--- 1. Create Tables
-
--- Create customer table
 CREATE TABLE customer (
     cust_no INT PRIMARY KEY,
     cust_name VARCHAR(50) NOT NULL
 );
 
--- Create membership table
 CREATE TABLE membership (
     mem_no INT PRIMARY KEY,
     cust_no INT,
     FOREIGN KEY (cust_no) REFERENCES customer(cust_no)
 );
 
--- Create cassette table
 CREATE TABLE cassette (
     cass_no INT PRIMARY KEY,
     cass_name VARCHAR(100) NOT NULL,
     language VARCHAR(50) NOT NULL
 );
 
--- Create iss_rec (Issue Record) table
 CREATE TABLE iss_rec (
     iss_no INT PRIMARY KEY,
     iss_date DATE NOT NULL,
@@ -30,9 +24,6 @@ CREATE TABLE iss_rec (
     FOREIGN KEY (cass_no) REFERENCES cassette(cass_no)
 );
 
--- 2. Insert Data
-
--- Insert data into customer table
 INSERT INTO customer (cust_no, cust_name) VALUES
 (1001, 'John Doe'),
 (1002, 'Jane Smith'),
@@ -40,7 +31,6 @@ INSERT INTO customer (cust_no, cust_name) VALUES
 (1004, 'Emily Brown'),
 (1005, 'David Lee');
 
--- Insert data into membership table
 INSERT INTO membership (mem_no, cust_no) VALUES
 (5001, 1001),
 (5002, 1002),
@@ -48,7 +38,6 @@ INSERT INTO membership (mem_no, cust_no) VALUES
 (5004, 1004),
 (5005, 1005);
 
--- Insert data into cassette table
 INSERT INTO cassette (cass_no, cass_name, language) VALUES
 (2001, 'The Great Gatsby', 'English'),
 (2002, 'Moby Dick', 'English'),
@@ -56,7 +45,6 @@ INSERT INTO cassette (cass_no, cass_name, language) VALUES
 (2004, 'Jane Eyre', 'Spanish'),
 (2005, 'Animal Farm', 'English');
 
--- Insert data into iss_rec table
 INSERT INTO iss_rec (iss_no, iss_date, mem_no, cass_no) VALUES
 (1, '2024-07-01', 5001, 2001),
 (2, '2024-07-02', 5002, 2002),
@@ -64,7 +52,6 @@ INSERT INTO iss_rec (iss_no, iss_date, mem_no, cass_no) VALUES
 (4, '2024-07-04', 5004, 2004),
 (5, '2024-07-05', 5005, 2005);
 
--- 3. List all the customer names along with their membership numbers
 SELECT 
     customer.cust_name, 
     membership.mem_no
@@ -73,7 +60,6 @@ FROM
 JOIN 
     membership ON customer.cust_no = membership.cust_no;
 
--- 4. List the issue number for 2024-07-04 along with the customer names and cassette names
 SELECT 
     iss_rec.iss_no, 
     customer.cust_name, 
@@ -89,7 +75,6 @@ JOIN
 WHERE 
     iss_rec.iss_date = '2024-07-04';
 
--- 5. List the details of the customer (customer number and customer name) who has borrowed the cassette titled 'Moby Dick'
 SELECT 
     customer.cust_no, 
     customer.cust_name
@@ -104,7 +89,6 @@ JOIN
 WHERE 
     cassette.cass_name = 'Moby Dick';
 
--- 6. List the cassette names that the customer with membership number 5002 has borrowed
 SELECT 
     cassette.cass_name
 FROM 
@@ -114,7 +98,6 @@ JOIN
 WHERE 
     iss_rec.mem_no = 5002;
 
--- 7. List the cassette details (cassette number, cassette name, and language) for the cassettes issued on 2024-07-05
 SELECT 
     cassette.cass_no, 
     cassette.cass_name, 
@@ -126,7 +109,6 @@ JOIN
 WHERE 
     iss_rec.iss_date = '2024-07-05';
 
--- 8. Create a view named issue_details that lists the issue number (iss_no), issue date (iss_date), customer name (cust_name), and cassette name (cass_name)
 CREATE VIEW issue_details AS
 SELECT 
     iss_rec.iss_no, 
@@ -142,7 +124,6 @@ JOIN
 JOIN 
     cassette ON iss_rec.cass_no = cassette.cass_no;
 
--- 9. Create a view named issues_date_wise that lists issue records (issue number, issue date, customer name, and cassette name) within the date range from 2024-07-01 to 2024-07-04
 CREATE VIEW issues_date_wise AS
 SELECT 
     iss_rec.iss_no, 
